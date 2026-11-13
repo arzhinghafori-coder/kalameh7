@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101820">
+  <title>کلمه | KALAMEH</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="کلمه"><span class="brand-mark">ک</span><span>کلمه</span><small>KALAMEH</small></a>
+    <nav><button class="nav-btn active" data-page="game">بازی</button><button class="nav-btn" data-page="leaderboard">برترین‌ها</button><button class="nav-btn" data-page="profile">پروفایل</button><button class="nav-btn" data-page="settings">تنظیمات</button></nav>
+    <div class="top-actions"><button id="themeToggle" class="account-btn" type="button">☀️ حالت روشن</button><button id="accountBtn" class="account-btn">ورود / ثبت‌نام</button></div>
+  </header>
+
+  <main>
+    <section id="setup" class="panel setup-panel">
+      <div class="eyebrow">بازی حدس واژه</div>
+      <h1>هر روز، یک چالش تازه.</h1>
+      <p class="muted">زبانت را انتخاب کن، شش فرصت داری تا واژه پنهان را پیدا کنی.</p>
+      <div class="language-switch">
+        <button class="lang active" data-lang="fa">فارسی</button>
+        <button class="lang" data-lang="en">English</button>
+      </div>
+      <div class="rules">
+        <div><span class="sample green">ک</span><span><b>درست!</b><small>حرف و جایگاه درست است.</small></span></div>
+        <div><span class="sample yellow">ل</span><span><b>نزدیک شدی!</b><small>حرف در واژه هست، جای آن نه.</small></span></div>
+        <div><span class="sample gray">م</span><span><b>این یکی نه.</b><small>این حرف در واژه نیست.</small></span></div>
+      </div>
+      <button id="dailyChallengeBtn" class="primary wide daily-btn" type="button">🌟 چالش روزانه <span>←</span></button>
+      <p class="tiny muted daily-note" id="dailyChallengeNote">هر روز یک واژه تازه؛ فقط یک فرصت برای ثبت نتیجهٔ روزانه.</p>
+      <button id="startBtn" class="secondary wide" type="button">بازی آزاد <span>←</span></button>
+      <p class="tiny muted" id="guestNote">برای ذخیره رکورد و حضور در جدول برترین‌ها، ابتدا حساب بساز یا وارد شو.</p>
+    </section>
+
+    <section id="game" class="game-area hidden">
+      <div class="game-heading"><div><div class="eyebrow">چالش امروز</div><h1 id="gameTitle">واژه پنج‌حرفی را پیدا کن</h1></div><div class="attempt-pill"><b id="attemptCount">۰</b><span>از ۶ فرصت</span></div></div>
+      <div id="board" class="board" aria-label="صفحه بازی"></div>
+      <div id="message" class="message" aria-live="polite">یک واژه پنج‌حرفی وارد کن.</div>
+      <div id="keyboard" class="keyboard"></div>
+      <div class="game-actions"><button id="newGameBtn" class="secondary">بازی جدید</button><button id="backBtn" class="text-btn">بازگشت</button></div>
+    </section>
+
+    <section id="leaderboard" class="panel hidden">
+      <div class="eyebrow">جام قهرمانان</div><h1>جدول برترین‌ها</h1>
+      <p class="muted">بازیکنانی که بیشترین برد را ثبت کرده‌اند.</p>
+      <div id="leaderRows" class="leader-list"><div class="loading">در حال دریافت جدول...</div></div>
+      <button class="secondary wide" id="refreshBoard">به‌روزرسانی</button>
+    </section>
+
+    <section id="profile" class="panel hidden">
+      <div class="eyebrow">حساب کاربری</div><h1 id="profileTitle">پروفایل بازیکن</h1>
+      <div class="profile-user"><span class="avatar">ک</span><div><b id="profileName">—</b><small id="profileUsername">—</small></div></div>
+      <div class="level-card"><div><small>سطح بازیکن</small><b id="profileLevel">تازه‌کار · سطح ۱</b></div><div class="level-track"><span id="levelProgress"></span></div><small id="levelXp">۰ امتیاز تجربه</small></div><div class="stats"><div><b id="statGames">۰</b><small>بازی</small></div><div><b id="statWins">۰</b><small>برد</small></div><div><b id="statBest">—</b><small>بهترین حدس</small></div></div><h3>سابقه بازی‌ها</h3><div id="profileHistory" class="leader-list"></div>
+      <button id="logoutBtn" class="secondary wide">خروج از حساب</button>
+    </section>
+
+    <section id="settings" class="panel hidden">
+      <div class="eyebrow">شخصی‌سازی بازی</div>
+      <h1 id="settingsTitle">تنظیمات</h1>
+      <p class="muted" id="settingsIntro">ظاهر کلمه را مطابق سلیقه‌ات انتخاب کن. انتخاب‌ها روی همین دستگاه ذخیره می‌شوند.</p>
+      <div class="settings-group">
+        <h3 id="paletteHeading">رنگ و تم منو</h3>
+        <div class="theme-grid">
+          <button class="theme-choice" data-palette="ocean" type="button"><span class="theme-swatch ocean-swatch"></span><b data-fa="اقیانوسی" data-en="Ocean">اقیانوسی</b></button>
+          <button class="theme-choice" data-palette="purple" type="button"><span class="theme-swatch purple-swatch"></span><b data-fa="بنفش" data-en="Purple">بنفش</b></button>
+          <button class="theme-choice" data-palette="forest" type="button"><span class="theme-swatch forest-swatch"></span><b data-fa="جنگلی" data-en="Forest">جنگلی</b></button>
+          <button class="theme-choice" data-palette="sunset" type="button"><span class="theme-swatch sunset-swatch"></span><b data-fa="غروب" data-en="Sunset">غروب</b></button>
+          <button class="theme-choice" data-palette="rose" type="button"><span class="theme-swatch rose-swatch"></span><b data-fa="رز" data-en="Rose">رز</b></button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <h3 id="modeHeading">حالت نمایش</h3>
+        <div class="mode-options">
+          <button class="mode-choice" data-mode="dark" type="button" id="darkModeChoice">🌙 تاریک</button>
+          <button class="mode-choice" data-mode="light" type="button" id="lightModeChoice">☀️ روشن</button>
+          <button class="mode-choice" data-mode="system" type="button" id="systemModeChoice">⚙️ مطابق دستگاه</button>
+        </div>
+      </div>
+      <p class="tiny muted" id="settingsSavedNote">تنظیمات به‌صورت خودکار ذخیره می‌شوند.</p>
+    </section>
+
+    <footer>
+      <span>کلمه © ۲۰۲۶</span><span>ساخته‌شده برای عاشقان واژه</span>
+      <a class="telegram-link" href="https://t.me/KaLaMeh7" target="_blank" rel="noopener noreferrer" aria-label="Telegram @KaLaMeh7">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 4.3 18.4 20c-.24 1.1-.88 1.36-1.78.85l-4.9-3.62-2.36 2.27c-.26.26-.48.48-.98.48l.35-4.98 9.07-8.2c.4-.35-.09-.55-.62-.2L5.97 13.7l-4.76-1.49c-1.04-.33-1.06-1.04.22-1.55L20.04 3.1c.87-.32 1.63.2 1.56 1.2Z"/></svg>
+        <span dir="ltr">@KaLaMeh7</span>
+      </a>
+    </footer>
+  </main>
+
+  <dialog id="authDialog">
+    <form method="dialog" class="dialog-close"><button aria-label="بستن">×</button></form>
+    <div class="eyebrow">به جمع کلمه‌بازها بپیوند</div><h2 id="authTitle">ساخت حساب</h2>
+    <div class="auth-tabs"><button class="active" data-auth="register">ثبت‌نام</button><button data-auth="login">ورود</button></div>
+    <label id="nameLabel">نام کاربری<input id="registerUsername" maxlength="24" autocomplete="username" placeholder="مثلاً kalameh_player"></label>
+    <label id="usernameLabel" class="hidden">نام کاربری<input id="usernameInput" maxlength="24" autocomplete="username" placeholder="نام کاربری شما"></label>
+    <label>رمز عبور<input id="passwordInput" type="password" minlength="8" autocomplete="new-password" placeholder="حداقل ۸ نویسه"></label>
+    <p class="tiny muted">نام کاربری را خودت انتخاب کن. برای ورود دوباره، همین نام کاربری و رمز عبور را لازم داری.</p>
+    <button id="authSubmit" class="primary wide">ساخت حساب</button>
+    <p id="authMessage" class="message"></p>
+  </dialog>
+<script src="app.js"></script>
+</body>
+</html>
